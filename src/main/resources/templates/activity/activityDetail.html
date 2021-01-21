@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta name="description" content="">
+		<meta name="author" content="">
+
+		<title>活动详情</title>
+		<!-- Bootstrap core CSS -->
+		<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+
+		<!-- Custom styles for this template -->
+		<link th:href="@{/css/dashboard.css}" rel="stylesheet">
+		<style type="text/css">
+			/* Chart.js */
+
+			@-webkit-keyframes chartjs-render-animation {
+				from {
+					opacity: 0.99
+				}
+				to {
+					opacity: 1
+				}
+			}
+
+			@keyframes chartjs-render-animation {
+				from {
+					opacity: 0.99
+				}
+				to {
+					opacity: 1
+				}
+			}
+
+			.chartjs-render-monitor {
+				-webkit-animation: chartjs-render-animation 0.001s;
+				animation: chartjs-render-animation 0.001s;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div th:insert="~{common::topbar}"></div>
+
+		<div class="container-fluid">
+			<div class="row">
+				<div th:insert="~{common::sidebar(active='activity')}"></div>
+
+				<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+					<h4>活动详情</h4>
+					<br/>
+					<p th:text="${msg}" style="text-align: center ; color: red"></p>
+					<nav>
+						<div class="nav nav-tabs" id="nav-tab" role="tablist">
+							<a class="nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">基本信息</a>
+							<a class="nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">活动简介</a>
+						</div>
+					</nav>
+					<div class="tab-content" id="nav-tabContent">
+						<div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+							<ul class="list-group">
+								<li class="list-group-item" th:text="'活动名称: '+${activity.getName()}"></li>
+								<li class="list-group-item" th:text="'剩余票数: '+${activity.getRest()}"></li>
+								<li class="list-group-item" th:text="'活动开始时间: '+${#dates.format(activity.getStartTime(), 'yyyy-MM-dd HH:mm:ss')}"></li>
+								<li class="list-group-item" th:text="'抢票开始时间: '+${#dates.format(activity.getStart(), 'yyyy-MM-dd HH:mm:ss')}"></li>
+								<li id="activity-id" th:hidden="true" th:text="${activity.getId()}"></li>
+							</ul>
+							<br>
+
+							<div>
+								<button id="grab-button" th:hidden="${activity.getRest()>0 and !selected and activity.getStartTime().getTime() <= new java.util.Date().getTime()}?'false':'true'" class="btn btn-sm btn-success" data-toggle="modal" data-target="#grabModal">抢票</button>
+								<button th:hidden="${!selected}" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#refundModal">退票</button>
+							</div>
+						</div>
+						<div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+							<p th:text="${activity.getDetail()}">
+						</div>
+					</div>
+
+					<!-- 模态框1 -->
+					<div class="modal fade" id="grabModal">
+						<div class="modal-dialog modal-sm">
+							<div class="modal-content">
+
+								<!-- 模态框头部 -->
+								<div class="modal-header">
+									<h5 class="modal-title">抢票确认</h5>
+									<button type="button" class="close" data-dismiss="modal">&times;</button>
+								</div>
+
+								<!-- 模态框主体 -->
+								<div class="modal-body">
+									您当前符合参加活动条件，是否抢票？查看抢票结果可能会有延迟，请勿重复提交
+								</div>
+
+								<!-- 模态框底部 -->
+								<div class="modal-footer">
+									<button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">关闭</button>
+									<a id="confirm-button" class="btn btn-sm btn-success" th:href="@{/activity/doKill/}+${activity.getId()}">确认抢票</a>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- 模态框2 -->
+					<div class="modal fade" id="refundModal">
+						<div class="modal-dialog modal-sm">
+							<div class="modal-content">
+
+								<!-- 模态框头部 -->
+								<div class="modal-header">
+									<h5 class="modal-title">退票确认</h5>
+									<button type="button" class="close" data-dismiss="modal">&times;</button>
+								</div>
+
+								<!-- 模态框主体 -->
+								<div class="modal-body">
+									是否退票？此操作不可恢复，如须参加活动请再次抢票
+								</div>
+
+								<!-- 模态框底部 -->
+								<div class="modal-footer">
+									<button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">关闭</button>
+									<a class="btn btn-sm btn-danger" th:href="@{/activity/doRefund/}+${activity.getId()}">确认退票</a>
+								</div>
+
+							</div>
+						</div>
+					</div>
+
+				</main>
+			</div>
+		</div>
+
+		<!-- Bootstrap core JavaScript
+    ================================================== -->
+		<!-- Placed at the end of the document so the pages load faster -->
+		<script type="text/javascript" th:src="@{/js/jquery-3.2.1.slim.min.js}"></script>
+		<script type="text/javascript" th:src="@{/js/popper.min.js}"></script>
+		<script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+		<script type="text/javascript" th:src="@{/js/jquery-3.5.1.js}"></script>
+
+
+
+
+		<!-- Icons -->
+		<script type="text/javascript" th:src="@{/js/feather.min.js}"></script>
+		<script>
+			feather.replace()
+		</script>
+
+		<!-- Graphs -->
+		<script type="text/javascript" th:src="@{/js/Chart.min.js}"></script>
+		<script>
+			var ctx = document.getElementById("myChart");
+			var myChart = new Chart(ctx, {
+				type: 'line',
+				data: {
+					labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+					datasets: [{
+						data: [15339, 21345, 18483, 24003, 23489, 24092, 12034],
+						lineTension: 0,
+						backgroundColor: 'transparent',
+						borderColor: '#007bff',
+						borderWidth: 4,
+						pointBackgroundColor: '#007bff'
+					}]
+				},
+				options: {
+					scales: {
+						yAxes: [{
+							ticks: {
+								beginAtZero: false
+							}
+						}]
+					},
+					legend: {
+						display: false,
+					}
+				}
+			});
+		</script>
+
+	</body>
+
+</html>
